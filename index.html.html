@@ -111,6 +111,41 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
 @media(max-width:700px){.main{margin-left:0!important;}}
 .cart-cb-item{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .12s;}
 .cart-cb-item:hover{background:var(--s3);}.cart-cb-item input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer;flex-shrink:0;}.cart-cb-item.checked{color:var(--text);}
+
+/* ── AGENTES VIRTUALES ── */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.agent-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;}
+.agent-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;}
+.agent-active::before{background:var(--green);}
+.agent-config::before{background:var(--warn);}
+.agent-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.agent-badge.active{background:rgba(62,207,142,.12);color:var(--green);}
+.agent-badge.config{background:rgba(245,166,35,.12);color:var(--warn);}
+.agent-name{font-size:17px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px;}
+.agent-role{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:10px;}
+.agent-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;}
+.agent-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.agent-stat{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;}
+.agent-stat-v{font-size:13px;font-weight:700;font-family:var(--mono);color:var(--text);}
+.agent-stat-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+
+/* ── RECOMENDACIONES ── */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+.rec-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.rec-card.sofia{border-left:3px solid var(--accent);}
+.rec-card.ok{border-left:3px solid var(--green);}
+.rec-card.watch{border-left:3px solid var(--warn);}
+.rec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.rec-cartera{font-size:12px;font-weight:700;color:var(--text);}
+.rec-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.4px;}
+.rec-tag.sofia{background:rgba(91,141,238,.15);color:var(--accent);}
+.rec-tag.ok{background:rgba(62,207,142,.15);color:var(--green);}
+.rec-tag.watch{background:rgba(245,166,35,.15);color:var(--warn);}
+.rec-metrics{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.rec-m{font-size:11px;color:var(--text3);}
+.rec-m span{color:var(--text2);font-weight:600;}
+.rec-body{font-size:11px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:8px;}
+.rec-icon{font-size:14px;margin-right:4px;}
 </style>
 </head>
 <body>
@@ -139,6 +174,8 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
     <li><a id="nav3"><span class="sb-icon">&#128200;</span>Acumulado</a></li>
     <li><a id="nav4"><span class="sb-icon">&#128202;</span>Graficas</a></li>
     <li><a id="nav5"><span class="sb-icon">&#128290;</span>Tablas Dinamicas</a></li>
+    <li><a id="nav6"><span class="sb-icon">&#128161;</span>Recomendaciones</a></li>
+    <li><a id="nav7"><span class="sb-icon">&#129302;</span>Agentes Virtuales</a></li>
   </ul>
   <div class="sb-bottom"><div class="sdot-wrap"><div class="sdot" id="sdot"></div><span id="stxt">Sin conectar</span></div></div>
 </nav>
@@ -221,6 +258,61 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
     <div id="pivotContainer"></div>
   </div>
   <div style="height:40px"></div>
+
+  <!-- ══ RECOMENDACIONES DE AGENTES ══ -->
+  <div id="sec-recomendaciones" class="sec">
+    <div class="sec-hdr">
+      <span class="sec-title">&#128161; Recomendaciones de Agentes</span>
+      <span style="font-size:10px;color:var(--text3)">Basado en datos del Sheets &middot; Se actualiza al conectar</span>
+    </div>
+    <div class="rec-grid" id="recGrid">
+      <div style="color:var(--text3);font-size:12px;padding:20px;">Conecta el Sheets para ver recomendaciones...</div>
+    </div>
+  </div>
+
+  <!-- ══ INVENTARIO DE AGENTES VIRTUALES ══ -->
+  <div id="sec-agentes" class="sec">
+    <div class="sec-hdr"><span class="sec-title">&#129302; Inventario de Agentes Virtuales</span></div>
+    <div class="agents-grid">
+      <!-- SOFIA -->
+      <div class="agent-card agent-active">
+        <div class="agent-badge active">&#9679; Activo</div>
+        <div class="agent-name">Sofia</div>
+        <div class="agent-role">Generacion de Clientes Efectivos</div>
+        <div class="agent-desc">Especialista en la generacion de clientes efectivos mediante llamadas de prospecto. Realiza contactos concisos y directos, maximizando la tasa de conversion en el menor tiempo posible.</div>
+        <div class="agent-stats">
+          <div class="agent-stat"><div class="agent-stat-v">&le; 2 min</div><div class="agent-stat-l">Dur. max llamada</div></div>
+          <div class="agent-stat"><div class="agent-stat-v">Efectivas</div><div class="agent-stat-l">Tipo de gestion</div></div>
+          <div class="agent-stat"><div class="agent-stat-v">Outbound</div><div class="agent-stat-l">Modalidad</div></div>
+        </div>
+      </div>
+      <!-- ANDREA -->
+      <div class="agent-card agent-active">
+        <div class="agent-badge active">&#9679; Activo</div>
+        <div class="agent-name">Andrea</div>
+        <div class="agent-role">Recordatorios de Promesas de Pago</div>
+        <div class="agent-desc">Configurada para ejecutar el ciclo diario de recordatorios de compromisos de pago. Mantiene contacto continuo con clientes que ya realizaron una promesa, asegurando el cumplimiento en la fecha pactada.</div>
+        <div class="agent-stats">
+          <div class="agent-stat"><div class="agent-stat-v">&lt; 2 min</div><div class="agent-stat-l">Dur. promedio</div></div>
+          <div class="agent-stat"><div class="agent-stat-v">Recordatorio</div><div class="agent-stat-l">Tipo de gestion</div></div>
+          <div class="agent-stat"><div class="agent-stat-v">Diario</div><div class="agent-stat-l">Frecuencia</div></div>
+        </div>
+      </div>
+      <!-- ANA -->
+      <div class="agent-card agent-config">
+        <div class="agent-badge config">&#9679; En Configuracion</div>
+        <div class="agent-name">Ana</div>
+        <div class="agent-role">Por definir</div>
+        <div class="agent-desc">Agente virtual en proceso de configuracion. Proximamente disponible para ser asignada a carteras o flujos de trabajo segun las necesidades operativas del equipo.</div>
+        <div class="agent-stats">
+          <div class="agent-stat"><div class="agent-stat-v">&#x23F3; Pronto</div><div class="agent-stat-l">Estado</div></div>
+          <div class="agent-stat"><div class="agent-stat-v">Pending</div><div class="agent-stat-l">Configuracion</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:60px"></div>
 </main>
 <script>
 var CPM=0.285, SHEET_ID='1jwRESco6JI9uhcIGWhylwldgtrBJaSqRFXMsVv3zf18', SHEET_TAB='Hoja1';
@@ -367,6 +459,7 @@ function fetchParalelo(id,tab){
     document.getElementById('tsub').textContent='\u2713 '+rows.length+' registros \u00b7 '+metodo+' \u00b7 $'+CPM+'/min';
     poblarCarteraFilter();
     renderAll();
+    calcRecomendaciones();
     toast('\u2713 '+rows.length+' registros ('+metodo+')','ok');
   }
 
@@ -763,7 +856,100 @@ function saveWeek(){
 }
 function toggleCfg(){document.getElementById('cfgPanel').classList.toggle('hidden');}
 function exportJSON(){var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reporte_av_'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exportado','ok');}
-function renderAll(){renderTabs();renderKPI();renderMainTable();renderAcumulado();renderCharts();renderPivot();}
+// ── RECOMENDACIONES ENGINE ──
+function calcRecomendaciones(){
+  var rows = buildData(); // uses current semana/cartera filters
+  if(!rows.length) return;
+
+  var cards = [];
+  rows.forEach(function(r){
+    var c       = r.c;
+    var mins    = r.minCons;
+    var calls   = 0;
+    // Count calls from rawData for this cartera across active semanas
+    var activeSems = state.selectedWeeks.length > 0
+      ? state.semanas.filter(function(s){ return state.selectedWeeks.indexOf(s.id) >= 0; })
+      : state.semanas;
+    activeSems.forEach(function(sem){
+      rawData.forEach(function(row){
+        var d = normDate(row['Fecha:']||row['Fecha']||'');
+        if(d >= sem.fechaInicio && d <= sem.fechaFin && (row['empresa_cliente']||'').trim() === c)
+          calls++;
+      });
+    });
+
+    var obj  = r.objPromesas;
+    var res  = r.resPromesas;
+    var pct  = r.pct; // 0..1+
+
+    // ── SOFIA RECOMMENDATION ──
+    // Trigger: low contact (mins < 50 OR calls < 200) AND
+    //          promesas stagnant or below target (pct <= 1.0) AND obj > 0
+    // OR: no objetivo set but also no results (both 0) AND few calls
+    var sofiaCriteria = (mins < 50 || calls < 200) && pct <= 1.0;
+    var noData        = obj === 0 && res === 0 && mins < 50;
+
+    // ── WATCH (needs attention) ──
+    // SOLVE: logro < 80%
+    var watchCriteria = obj > 0 && pct < 0.8;
+
+    // ── OK ──
+    var okCriteria = pct >= 1.0 && mins > 100;
+
+    var type, tag, body, icon;
+
+    if(sofiaCriteria || noData){
+      type = 'sofia';
+      tag  = '&#129302; Usar Sofia';
+      icon = '&#128161;';
+      if(noData){
+        body = 'Sin contacto ni objetivos registrados en el periodo. Se recomienda activar a <strong>Sofia</strong> para generar los primeros contactos efectivos y establecer una base de clientes activos en esta cartera.';
+      } else if(pct === 1.0 && obj > 0){
+        body = 'El resultado iguala exactamente al objetivo ('+(res)+' promesas) sin superarlo, con bajo volumen de contacto ('+(mins)+' min). Las promesas no crecen. <strong>Sofia</strong> puede generar efectivas adicionales para superar la meta.';
+      } else if(pct < 1.0 && obj > 0){
+        body = 'Logro del '+(pct*100).toFixed(1)+'% con solo '+(mins)+' min de contacto. El AV no esta alcanzando el objetivo. Se recomienda activar <strong>Sofia</strong> para incrementar los contactos efectivos y elevar el cumplimiento.';
+      } else {
+        body = 'Contacto limitado ('+(mins)+' min, '+(calls)+' llamadas). Para carteras con bajo volumen de interaccion, <strong>Sofia</strong> puede aumentar el numero de efectivas y mejorar resultados.';
+      }
+    } else if(watchCriteria){
+      type = 'watch';
+      tag  = '&#9888; Monitorear';
+      icon = '&#9888;';
+      body = 'Logro del '+(pct*100).toFixed(1)+'% (objetivo: '+fmt(obj)+', resultado: '+fmt(res)+'). Esta por debajo del 80%. Revisar la configuracion del flujo y considerar ajustes de script o aumento de intentos de contacto.';
+    } else if(okCriteria){
+      type = 'ok';
+      tag  = '&#10003; En Meta';
+      icon = '&#127881;';
+      body = 'Logro del '+(pct*100).toFixed(1)+'% con '+fmt(mins)+' min de contacto. La cartera esta cumpliendo o superando su objetivo. Mantener la configuracion actual del agente virtual.';
+    } else {
+      return; // no card for this cartera
+    }
+
+    cards.push({c:c, type:type, tag:tag, body:body, icon:icon, mins:mins, calls:calls, pct:pct, obj:obj, res:res});
+  });
+
+  var container = document.getElementById('recGrid');
+  if(!container) return;
+  if(!cards.length){ container.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;grid-column:1/-1;">No hay recomendaciones activas para la seleccion actual.</div>'; return; }
+
+  container.innerHTML = cards.map(function(card){
+    var logroColor = card.pct >= 1 ? 'var(--green)' : card.pct >= .8 ? 'var(--warn)' : 'var(--red)';
+    return '<div class="rec-card '+card.type+'">'+
+      '<div class="rec-header">'+
+        '<div class="rec-cartera">'+card.c+'</div>'+
+        '<div class="rec-tag '+card.type+'">'+card.tag+'</div>'+
+      '</div>'+
+      '<div class="rec-metrics">'+
+        '<div class="rec-m">Min: <span>'+fmt(card.mins)+'</span></div>'+
+        '<div class="rec-m">Llamadas: <span>'+fmt(card.calls)+'</span></div>'+
+        (card.obj > 0 ? '<div class="rec-m">Logro: <span style="color:'+logroColor+';font-weight:700">'+(card.pct*100).toFixed(1)+'%</span></div>' : '')+
+      '</div>'+
+      '<div class="rec-body"><span class="rec-icon">'+card.icon+'</span>'+card.body+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderAll(){renderTabs();renderKPI();renderMainTable();renderAcumulado();renderCharts();renderPivot();if(rawData.length)calcRecomendaciones();}
 
 function initCarteraFilter(){
   var container=document.getElementById('carteraCheckboxes');if(!container)return;container.innerHTML='';
@@ -816,6 +1002,8 @@ document.getElementById('nav2').addEventListener('click',function(){navTo('sec-t
 document.getElementById('nav3').addEventListener('click',function(){navTo('sec-acum','nav3');});
 document.getElementById('nav4').addEventListener('click',function(){navTo('sec-graficas','nav4');});
 document.getElementById('nav5').addEventListener('click',function(){navTo('sec-pivot','nav5');});
+document.getElementById('nav6').addEventListener('click',function(){navTo('sec-recomendaciones','nav6');});
+document.getElementById('nav7').addEventListener('click',function(){navTo('sec-agentes','nav7');});
 
 (function init(){
   document.getElementById('shUrl').value=SHEET_ID;
