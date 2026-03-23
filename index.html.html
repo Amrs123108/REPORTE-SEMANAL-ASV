@@ -223,9 +223,9 @@ td.cart{font-weight:600;}
     </div>
   </div>
   <div class="fbar">
-    <div class="fg"><label>Desde</label><input type="date" id="fDesde"></div>
+    <div class="fg"><label>Desde</label><input type="date" id="fDesde" autocomplete="off"></div>
     <span style="color:var(--text3);padding-top:18px">&rarr;</span>
-    <div class="fg"><label>Hasta</label><input type="date" id="fHasta"></div>
+    <div class="fg"><label>Hasta</label><input type="date" id="fHasta" autocomplete="off"></div>
     <div class="fg" style="position:relative;">
       <label>Carteras</label>
       <button id="btnCarteraToggle" class="btn sm" style="min-width:180px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -394,10 +394,18 @@ function normDate(s){
   // YYYY-MM-DD (with or without time)
   m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
-  // M/D/YYYY or MM/DD/YYYY  (gviz CSV)
+  // XX/XX/YYYY — could be M/D/YYYY (en-US) or DD/MM/YYYY (es-PA)
   m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m)return m[3]+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0');
-  // Date(YYYY,M,D)  (gviz JSON — month is 0-indexed!)
+  if(m){
+    var p1=parseInt(m[1]),p2=parseInt(m[2]),yr=m[3];
+    // If first part > 12, it MUST be day → DD/MM/YYYY
+    if(p1>12) return yr+'-'+String(p2).padStart(2,'0')+'-'+String(p1).padStart(2,'0');
+    // If second part > 12, it MUST be day → MM/DD/YYYY
+    if(p2>12) return yr+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0');
+    // Both ≤12: ambiguous. Use DD/MM/YYYY (Panama/Latin America standard)
+    return yr+'-'+String(p2).padStart(2,'0')+'-'+String(p1).padStart(2,'0');
+  }
+  // Date(YYYY,M,D)  (gviz JSON — month is 0-indexed, ALWAYS unambiguous)
   m=str.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
   if(m)return m[1]+'-'+String(parseInt(m[2])+1).padStart(2,'0')+'-'+m[3].padStart(2,'0');
   return str.substring(0,10);
@@ -466,21 +474,7 @@ function fetchParalelo(id,tab){
     toast('No se pudo conectar. Verifica que el Sheets sea publico.','err');}
   },12000);
 
-  // Method 1: gviz CSV
-  (function(){
-    var url='https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(tab);
-    fetch(url).then(function(r){return r.ok?r.text():Promise.reject(r.status);})
-    .then(function(txt){var rows=parseCSV(txt);if(rows.length>0)exito(rows,'CSV');}).catch(function(){});
-  })();
-
-  // Method 2: export CSV
-  (function(){
-    var url='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv&gid=0';
-    fetch(url).then(function(r){return r.ok?r.text():Promise.reject(r.status);})
-    .then(function(txt){var rows=parseCSV(txt);if(rows.length>0)exito(rows,'Export');}).catch(function(){});
-  })();
-
-  // Method 3: gviz JSON
+  // Method 1: gviz JSON — fires FIRST, returns unambiguous Date(YYYY,M,D) format
   (function(){
     var url='https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(tab);
     fetch(url).then(function(r){return r.ok?r.text():Promise.reject(r.status);})
@@ -497,6 +491,24 @@ function fetchParalelo(id,tab){
       if(rows.length>0)exito(rows,'JSON');
     }).catch(function(){});
   })();
+
+  // Method 2: gviz CSV (fallback, 200ms delay to let JSON win)
+  setTimeout(function(){
+    (function(){
+      var url='https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(tab);
+      fetch(url).then(function(r){return r.ok?r.text():Promise.reject(r.status);})
+      .then(function(txt){var rows=parseCSV(txt);if(rows.length>0)exito(rows,'CSV');}).catch(function(){});
+    })();
+  }, 200);
+
+  // Method 3: export CSV (fallback, 200ms delay)
+  setTimeout(function(){
+    (function(){
+      var url='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv&gid=0';
+      fetch(url).then(function(r){return r.ok?r.text():Promise.reject(r.status);})
+      .then(function(txt){var rows=parseCSV(txt);if(rows.length>0)exito(rows,'Export');}).catch(function(){});
+    })();
+  }, 200);
 }
 
 // ════════════════════════════════════════════════════
@@ -565,7 +577,9 @@ function getFiltered(){
 function limpiarFiltro(){
   document.getElementById('fDesde').value='';
   document.getElementById('fHasta').value='';
-  document.getElementById('fCartera').value='';
+  // Reset cartera filter to all selected
+  state.selectedCarteras=CARTERAS.slice();
+  initCarteraFilter();
   renderAll();
 }
 
