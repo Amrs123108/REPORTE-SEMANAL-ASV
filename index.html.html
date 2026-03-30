@@ -221,20 +221,24 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
       </div>
     </div>
   </div>
-  <!-- COLUMN SOURCE INFO PANEL -->
-  <div id="colInfoPanel" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;display:none;">
-    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">&#128204; Origen de cada columna del dashboard</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;font-size:11px;">
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--accent)"><div style="color:var(--text);font-weight:600">Cartera</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">empresa_cliente</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--warn)"><div style="color:var(--text);font-weight:600">Minutos Consumidos</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">MINUTOS CONSUMIDOS</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--green)"><div style="color:var(--text);font-weight:600">Fecha (filtro semanas)</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Fecha:</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--purple)"><div style="color:var(--text);font-weight:600">Clasificacion</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">clasificacion</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--accent)"><div style="color:var(--text);font-weight:600">Sentimiento</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Sentimiento del Usuario</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--red)"><div style="color:var(--text);font-weight:600">En Buzon de Voz</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">En Buz&#243;n de Voz</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--warn)"><div style="color:var(--text);font-weight:600">Monto a Pagar</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">monto_pagar</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--green)"><div style="color:var(--text);font-weight:600">Duracion llamada</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Duraci&#243;n en Segundos</code></div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--text3)"><div style="color:var(--text);font-weight:600">Min. Asignados / Presupuesto</div><div style="color:var(--text3);margin-top:2px">Configurado en el dashboard (no viene del Sheets)</div></div>
-      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--text3)"><div style="color:var(--text);font-weight:600">Obj/Res Promesas</div><div style="color:var(--text3);margin-top:2px">Ingresado manualmente &mdash; clic en celdas azules de la tabla</div></div>
+  <!-- COLUMN MAPPING PANEL — user selects which Sheets column = which field -->
+  <div id="colInfoPanel" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;">&#128204; Mapeo de columnas del Sheets</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">Selecciona de que columna viene cada campo. Conecta el Sheets primero para ver las opciones disponibles.</div>
+      </div>
+      <button id="btnApplyColMap" class="btn primary sm">&#10003; Aplicar</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;" id="colMapGrid">
+      <!-- Populated by renderColMapUI() after Sheets connects -->
+      <div style="color:var(--text3);font-size:12px;grid-column:1/-1;padding:10px 0;">
+        Conecta el Sheets para ver las columnas disponibles y asignarlas.
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);">
+      &#9432; <strong style="color:var(--text2)">Min. Asignados y Presupuesto</strong> se configuran manualmente en el dashboard &nbsp;|&nbsp;
+      <strong style="color:var(--text2)">Obj/Res Promesas</strong> se ingresan haciendo clic en las celdas azules de la tabla.
     </div>
   </div>
 
@@ -416,6 +420,18 @@ var OBJ_ESTRATEGICOS={
 
 var state={
   activeSemanaId:'sem1', selectedWeeks:['sem1'],
+  // Column mapping: user can change these to match their Sheets
+  colMap:{
+    fecha:    'Fecha:',
+    cartera:  'empresa_cliente',
+    minutos:  'MINUTOS CONSUMIDOS',
+    clasif:   'clasificacion',
+    sentim:   'Sentimiento del Usuario',
+    buzon:    'En Buzón de Voz',
+    monto:    'monto_pagar',
+    durSeg:   'Duración en Segundos',
+    contacto: 'nombre_contacto'
+  },
   selectedCarteras:['BANISTMO ACTIVA','TIGO','SURA','KREDIYA','SOLVE','BANISTMO','BAC RECOVERY','BANISTMO RECOVERY','GLOBAL BANK','MULTIBANK'],
   semanas:[
     {id:'sem1',nombre:'Semana 1 (04-07 Mar)',fechaInicio:'2026-03-04',fechaFin:'2026-03-07',manual:{
@@ -580,7 +596,10 @@ function fetchParalelo(id,tab){
     loading(false);
     setConn('ok','\u2713 '+metodo+' ['+dateOrder+'] \u00b7 '+rows.length+' filas');
     document.getElementById('tsub').textContent='\u2713 '+rows.length+' registros \u00b7 '+metodo+' \u00b7 $'+CPM+'/min';
+    // Detect available columns for the mapping UI
+    availableCols = Object.keys(rows[0]||{}).sort();
     poblarCarteraFilter();
+    renderColMapUI();
     renderAll();
     calcRecomendaciones();
     toast('\u2713 '+rows.length+' registros ('+metodo+')','ok');
@@ -660,7 +679,8 @@ function getField(r,field,fallbacks){
 
 function poblarCarteraFilter(){
   var seen=[];
-  rawData.forEach(function(r){var c=(r['empresa_cliente']||'').trim();if(c&&seen.indexOf(c)<0)seen.push(c);});
+  var cartCol=state.colMap.cartera;
+  rawData.forEach(function(r){var c=(r[cartCol]||'').trim();if(c&&seen.indexOf(c)<0)seen.push(c);});
   seen.sort();
   seen.forEach(function(c){
     if(CARTERAS.indexOf(c)<0){CARTERAS.push(c);if(state.selectedCarteras.indexOf(c)<0)state.selectedCarteras.push(c);}
@@ -691,22 +711,22 @@ function limpiarFiltro(){
 
 function getMinsCons(sem){
   if(!rawData.length)return{};
-  // Respect date filter if set, otherwise use semana's own range
-  var fD=document.getElementById('fDesde').value;
-  var fH=document.getElementById('fHasta').value;
-  var desde=fD||sem.fechaInicio;
-  var hasta=fH||sem.fechaFin;
-  // Clamp to semana range so cross-semana filters work correctly
-  if(desde<sem.fechaInicio)desde=sem.fechaInicio;
-  if(hasta>sem.fechaFin)hasta=sem.fechaFin;
+  // ALWAYS use semana's own date range — never override with date filter
+  // (date filter only affects Registros count via getFiltered)
+  var desde=sem.fechaInicio;
+  var hasta=sem.fechaFin;
   var selC=state.selectedCarteras;
+  var dateCol=state.colMap.fecha;
+  var minsCol=state.colMap.minutos;
+  var cartCol=state.colMap.cartera;
   var res={};
   rawData.forEach(function(r){
-    var d=normDate(r['Fecha:']||r['Fecha']||r['fecha:']||r['fecha']||'');
+    var rawDate=r[dateCol]||'';
+    var d=normDate(rawDate);
     if(!d||d<desde||d>hasta)return;
-    var c=(r['empresa_cliente']||r['Empresa_cliente']||r['EMPRESA_CLIENTE']||'').trim();
-    if(selC.indexOf(c)<0)return;
-    var m=getMinCOL(r);
+    var c=(r[cartCol]||'').trim();
+    if(!c||selC.indexOf(c)<0)return;
+    var m=parseFloat(r[minsCol]||0)||0;
     if(c)res[c]=(res[c]||0)+m;
   });
   return res;
@@ -1055,16 +1075,17 @@ var P_AGGS=[{v:'sum',l:'Suma'},{v:'count',l:'Conteo'},{v:'avg',l:'Promedio'},{v:
 function buildPivotSrc(){
   var base=rawData.length>0?getFiltered():[];
   if(!base.length){var src=[];state.semanas.forEach(function(s){CARTERAS.forEach(function(c){src.push({'empresa_cliente':c,'clasificacion':'-','Sentimiento del Usuario':'-','En Buzon de Voz':'-','nombre_contacto':'-','semana':s.nombre,'MINUTOS CONSUMIDOS':0,'costo':0,'monto_pagar':0,'count_rows':1,'Duracion en Segundos':0});});});return src;}
+  var cm=state.colMap;
   return base.map(function(r){
-    var emp=(r['empresa_cliente']||'').trim();
-    var rd=normDate(r['Fecha:']||r['Fecha']||'');
+    var emp=(r[cm.cartera]||'').trim();
+    var rd=normDate(r[cm.fecha]||'');
     var sem=state.semanas.find(function(s){return rd>=s.fechaInicio&&rd<=s.fechaFin;});
-    var mins=getMinCOL(r);
-    var monto=parseFloat((r['monto_pagar']||'0').toString().replace(/[^0-9.-]/g,''))||0;
-    var dur=parseFloat(getField(r,'Duraci\u00f3n en Segundos',['Duracion en Segundos','Duraci\u00f3n en Segundos','duration_seconds'])||0);
+    var mins=parseFloat(r[cm.minutos]||0)||0;
+    var monto=parseFloat((r[cm.monto]||'0').toString().replace(/[^0-9.-]/g,''))||0;
+    var dur=parseFloat(r[cm.durSeg]||0)||0;
     return{'empresa_cliente':emp,'clasificacion':(r['clasificacion']||'-').trim(),
       'Sentimiento del Usuario':(r['Sentimiento del Usuario']||'-').trim(),
-      'En Buzon de Voz':(getField(r,'En Buz\u00f3n de Voz',['En Buzon de Voz','En_buzon_de_voz'])||'-').toString().trim(),
+      'En Buzon de Voz':(r[cm.buzon]||'-').toString().trim(),
       'nombre_contacto':(r['nombre_contacto']||'-').trim(),'semana':sem?sem.nombre:'Sin semana',
       'MINUTOS CONSUMIDOS':mins,'costo':mins*CPM,'monto_pagar':monto,'count_rows':1,'Duracion en Segundos':dur};
   });
@@ -1289,6 +1310,57 @@ function renderObjetivos(){
   }).join('');
 }
 
+// ── COLUMN MAPPING UI ──
+var availableCols = []; // populated after Sheets connects
+
+function renderColMapUI(){
+  var grid = document.getElementById('colMapGrid');
+  if(!grid) return;
+  if(!availableCols.length){
+    grid.innerHTML='<div style="color:var(--text3);font-size:12px;grid-column:1/-1;padding:10px 0;">Conecta el Sheets para ver las columnas disponibles.</div>';
+    return;
+  }
+  var fields = [
+    {key:'fecha',    label:'Fecha de la llamada',     icon:'&#128197;', color:'var(--green)'},
+    {key:'cartera',  label:'Cartera / Empresa',        icon:'&#127970;', color:'var(--accent)'},
+    {key:'minutos',  label:'Minutos Consumidos',        icon:'&#9201;',   color:'var(--warn)'},
+    {key:'clasif',   label:'Clasificacion de llamada', icon:'&#128203;', color:'var(--purple)'},
+    {key:'sentim',   label:'Sentimiento del usuario',  icon:'&#128172;', color:'var(--accent)'},
+    {key:'buzon',    label:'En Buzon de Voz',           icon:'&#128222;', color:'var(--red)'},
+    {key:'monto',    label:'Monto a Pagar',             icon:'&#128176;', color:'var(--warn)'},
+    {key:'durSeg',   label:'Duracion en Segundos',      icon:'&#9203;',   color:'var(--green)'},
+    {key:'contacto', label:'Nombre del Contacto',       icon:'&#128100;', color:'var(--text2)'}
+  ];
+  grid.innerHTML = fields.map(function(f){
+    var selStyle = 'background:var(--s2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:var(--font);font-size:12px;outline:none;width:100%;margin-top:4px;';
+    var opts = availableCols.map(function(col){
+      var sel = state.colMap[f.key]===col ? ' selected' : '';
+      return '<option value="'+col+'"'+sel+'>'+col+'</option>';
+    }).join('');
+    return '<div style="background:var(--s2);border:1px solid var(--border);border-left:3px solid '+f.color+';border-radius:7px;padding:10px 12px;">'+
+      '<div style="font-size:11px;font-weight:600;color:var(--text);">'+f.icon+' '+f.label+'</div>'+
+      '<div style="font-size:10px;color:var(--text3);margin-top:2px;">Actual: <code style="background:var(--s3);padding:1px 4px;border-radius:3px;font-size:10px">'+state.colMap[f.key]+'</code></div>'+
+      '<select id="cm_'+f.key+'" style="'+selStyle+'">'+opts+'</select>'+
+    '</div>';
+  }).join('');
+}
+
+function applyColMap(){
+  var fields=['fecha','cartera','minutos','clasif','sentim','buzon','monto','durSeg','contacto'];
+  var changed=false;
+  fields.forEach(function(k){
+    var el=document.getElementById('cm_'+k);
+    if(el&&el.value!==state.colMap[k]){state.colMap[k]=el.value;changed=true;}
+  });
+  if(changed){
+    toast('Mapeo aplicado ✓ Recalculando...','ok');
+    renderColMapUI(); // refresh to show new "actual" values
+    renderAll();
+  } else {
+    toast('Sin cambios','ok');
+  }
+}
+
 function renderAll(){renderTabs();renderKPI();renderMainTable();renderAcumulado();renderCharts();renderPivot();renderObjetivos();if(rawData.length)calcRecomendaciones();}
 
 function initCarteraFilter(){
@@ -1324,8 +1396,11 @@ document.addEventListener('click',function(e){
 document.getElementById('sbToggle').addEventListener('click',toggleSB);
 document.getElementById('btnToggleColInfo').addEventListener('click',function(){
   var p=document.getElementById('colInfoPanel');
-  p.style.display=p.style.display==='none'?'block':'none';
+  var isOpen=p.style.display!=='none';
+  p.style.display=isOpen?'none':'block';
+  if(!isOpen) renderColMapUI();
 });
+document.getElementById('btnApplyColMap').addEventListener('click', applyColMap);
 document.getElementById('btnCarteraToggle').addEventListener('click',function(e){e.stopPropagation();var dd=document.getElementById('carteraDropdown');dd.style.display=dd.style.display==='none'?'block':'none';});
 document.getElementById('btnSelAll').addEventListener('click',function(){selectAllCarteras();});
 document.getElementById('btnSelNone').addEventListener('click',function(){selectNoCarteras();});
