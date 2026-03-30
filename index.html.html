@@ -6,6 +6,7 @@
 <title>Reporte AV Semanal · Spear Contact</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root{--bg:#080b10;--s0:#0e1118;--s1:#141820;--s2:#1c2130;--s3:#242b3d;--border:#2d3448;--accent:#5b8dee;--green:#3ecf8e;--warn:#f5a623;--red:#ff6b6b;--purple:#a78bfa;--text:#dde3f0;--text2:#7e8aaa;--text3:#4a5270;--sb:220px;--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;--r:10px;}
 *{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
@@ -174,8 +175,9 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
     <li><a id="nav3"><span class="sb-icon">&#128200;</span>Acumulado</a></li>
     <li><a id="nav4"><span class="sb-icon">&#128202;</span>Graficas</a></li>
     <li><a id="nav5"><span class="sb-icon">&#128290;</span>Tablas Dinamicas</a></li>
-    <li><a id="nav6"><span class="sb-icon">&#128161;</span>Recomendaciones</a></li>
-    <li><a id="nav7"><span class="sb-icon">&#129302;</span>Agentes Virtuales</a></li>
+    <li><a id="nav6"><span class="sb-icon">&#127919;</span>Objetivos</a></li>
+    <li><a id="nav7"><span class="sb-icon">&#128161;</span>Recomendaciones</a></li>
+    <li><a id="nav8"><span class="sb-icon">&#129302;</span>Agentes Virtuales</a></li>
   </ul>
   <div class="sb-bottom"><div class="sdot-wrap"><div class="sdot" id="sdot"></div><span id="stxt">Sin conectar</span></div></div>
 </nav>
@@ -190,16 +192,52 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
     </div>
   </div>
   <div id="sec-config" class="sec">
-    <div class="sec-hdr"><span class="sec-title">Configuracion Google Sheets</span><button class="btn sm" id="btnToggleCfg">Mostrar / Ocultar</button></div>
+    <div class="sec-hdr">
+      <span class="sec-title">Configuracion Google Sheets</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn sm" id="btnToggleColInfo" style="color:var(--accent);border-color:var(--accent)">&#128204; Ver columnas</button>
+        <button class="btn sm" id="btnToggleCfg">Mostrar / Ocultar</button>
+      </div>
+    </div>
     <div class="cfg" id="cfgPanel">
       <div class="cfg-row">
         <div class="cfg-g"><label>ID o URL del Google Sheets</label><input type="text" id="shUrl" placeholder="ID o URL completa"></div>
         <div class="cfg-g" style="max-width:160px;"><label>Nombre hoja</label><input type="text" id="shTab" value="Hoja1"></div>
         <button class="btn primary" id="btnConectar" style="align-self:flex-end">Conectar</button>
       </div>
-      <div class="cfg-hint">El Sheets debe ser publico: <strong>Archivo &rarr; Compartir &rarr; Cualquiera con el enlace &rarr; Ver</strong><br>Columnas requeridas: <strong>Fecha: &middot; empresa_cliente &middot; MINUTOS CONSUMIDOS &middot; clasificacion</strong></div>
+      <div class="cfg-hint">
+        El Sheets debe ser publico: <strong>Archivo &rarr; Compartir &rarr; Cualquiera con el enlace &rarr; Ver</strong><br>
+        <strong style="color:var(--accent)">Columnas requeridas (nombre exacto en el Sheets):</strong><br>
+        <span style="display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-top:6px;">
+          <span>&#128197; Fecha: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">Fecha:</code></span>
+          <span>&#127970; Cartera <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">empresa_cliente</code></span>
+          <span>&#9201; Minutos <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">MINUTOS CONSUMIDOS</code></span>
+          <span>&#128203; Clasificacion <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">clasificacion</code></span>
+          <span>&#128172; Sentimiento <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">Sentimiento del Usuario</code></span>
+          <span>&#128222; En Buzon <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">En Buz&#243;n de Voz</code></span>
+          <span>&#128176; Monto <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">monto_pagar</code></span>
+          <span>&#9203; Duracion <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px">Duraci&#243;n en Segundos</code></span>
+        </span>
+      </div>
     </div>
   </div>
+  <!-- COLUMN SOURCE INFO PANEL -->
+  <div id="colInfoPanel" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;display:none;">
+    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">&#128204; Origen de cada columna del dashboard</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;font-size:11px;">
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--accent)"><div style="color:var(--text);font-weight:600">Cartera</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">empresa_cliente</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--warn)"><div style="color:var(--text);font-weight:600">Minutos Consumidos</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">MINUTOS CONSUMIDOS</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--green)"><div style="color:var(--text);font-weight:600">Fecha (filtro semanas)</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Fecha:</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--purple)"><div style="color:var(--text);font-weight:600">Clasificacion</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">clasificacion</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--accent)"><div style="color:var(--text);font-weight:600">Sentimiento</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Sentimiento del Usuario</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--red)"><div style="color:var(--text);font-weight:600">En Buzon de Voz</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">En Buz&#243;n de Voz</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--warn)"><div style="color:var(--text);font-weight:600">Monto a Pagar</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">monto_pagar</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--green)"><div style="color:var(--text);font-weight:600">Duracion llamada</div><div style="color:var(--text3);margin-top:2px">Sheets: <code style="background:var(--s3);padding:1px 5px;border-radius:3px">Duraci&#243;n en Segundos</code></div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--text3)"><div style="color:var(--text);font-weight:600">Min. Asignados / Presupuesto</div><div style="color:var(--text3);margin-top:2px">Configurado en el dashboard (no viene del Sheets)</div></div>
+      <div style="background:var(--s2);padding:8px 10px;border-radius:6px;border-left:2px solid var(--text3)"><div style="color:var(--text);font-weight:600">Obj/Res Promesas</div><div style="color:var(--text3);margin-top:2px">Ingresado manualmente &mdash; clic en celdas azules de la tabla</div></div>
+    </div>
+  </div>
+
   <div class="fbar">
     <div class="fg"><label>Desde</label><input type="date" id="fDesde" autocomplete="off"></div>
     <span style="color:var(--text3);padding-top:18px">&rarr;</span>
@@ -231,10 +269,16 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
       <span style="font-size:10px;color:var(--text3)">Clic en celdas <span style="color:var(--accent)">azules</span> para editar</span>
     </div>
     <div class="tw"><table><thead><tr>
-      <th>Cartera</th><th class="r ec">Min. Disponibles</th><th class="r">Min. Consumidos</th>
-      <th class="r">Costo ($)</th><th class="r ec">Meta Cumplidas</th>
-      <th class="r ec">Objetivo Promesas</th><th class="r ec">Resultado Promesas</th>
-      <th class="r">Diferencia</th><th class="r">% Logro</th>
+      <th>Cartera</th>
+      <th class="r ec">Min. Asignados</th>
+      <th class="r ec">Min. Disponibles</th>
+      <th class="r">Min. Consumidos</th>
+      <th class="r">Costo Total</th>
+      <th class="r">Presupuesto</th>
+      <th class="r ec">Obj. Promesas</th>
+      <th class="r ec">Res. Promesas</th>
+      <th class="r">Diferencia</th>
+      <th class="r">% Logro</th>
     </tr></thead><tbody id="mainTbody"></tbody></table></div>
   </div>
   <div id="sec-acum" class="sec">
@@ -267,6 +311,24 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
     </div>
     <div class="rec-grid" id="recGrid">
       <div style="color:var(--text3);font-size:12px;padding:20px;">Conecta el Sheets para ver recomendaciones...</div>
+    </div>
+  </div>
+
+  <!-- ══ OBJETIVOS POR CARTERA ══ -->
+  <div id="sec-objetivos" class="sec">
+    <div class="sec-hdr">
+      <span class="sec-title">&#127919; Objetivos por Cartera</span>
+      <span style="font-size:10px;color:var(--text3)">Objetivos estrategicos configurados</span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Cartera</th>
+          <th>Objetivo 1</th>
+          <th>Objetivo 2</th>
+        </tr></thead>
+        <tbody id="objTbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -316,49 +378,93 @@ td.mono{font-family:var(--mono);}td.cart{font-weight:600;}
 </main>
 <script>
 var CPM=0.285, SHEET_ID='1jwRESco6JI9uhcIGWhylwldgtrBJaSqRFXMsVv3zf18', SHEET_TAB='Hoja1';
-var CARTERAS=['BAC RECOVERY','BANISTMO','BANISTMO ACTIVA','BANISTMO RECOVERY','GLOBAL BANK','KREDIYA','MULTIBANK','SOLVE','SURA','TIGO'];
+// Ordered by MIN_ASIGNADOS descending (then alphabetically for ties)
+var CARTERAS=['BANISTMO ACTIVA','TIGO','SURA','KREDIYA','SOLVE','BANISTMO','BAC RECOVERY','BANISTMO RECOVERY','GLOBAL BANK','MULTIBANK'];
 var PIE_CLR=['#5b8dee','#3ecf8e','#f5a623','#ff6b6b','#a78bfa','#f472b6','#22d3ee','#fb923c','#34d399','#e879f9'];
 var rawData=[], charts={}, sbOpen=true, lastId='', lastTab='Hoja1', pivotList=[], pivotCnt=0;
 // dateOrder: 'MD' = M/D/YYYY (gviz en-US), 'DM' = D/M/YYYY (gviz es-PA)
 // Auto-detected from first batch of data
 var dateOrder='MD';
 
+// Minutos asignados por cartera (ordenado de mayor a menor)
+var MIN_ASIGNADOS={
+  'BANISTMO ACTIVA':1707,'TIGO':1029,'SURA':938,'KREDIYA':177,'SOLVE':161,
+  'BANISTMO':36,'BAC RECOVERY':0,'BANISTMO RECOVERY':0,'GLOBAL BANK':0,'MULTIBANK':0
+};
+// Presupuesto por cartera (B/.)
+var PRESUPUESTO={
+  'BANISTMO ACTIVA':2483,'TIGO':1496,'SURA':1364,'KREDIYA':258,'SOLVE':234,
+  'BANISTMO':53,'BAC RECOVERY':0,'BANISTMO RECOVERY':0,'GLOBAL BANK':0,'MULTIBANK':0
+};
+// Gasto adicional por cartera (B/.) — se suma al costo AV en columna Costo Total
+var GASTO_EXTRA={
+  'BANISTMO ACTIVA':51.87,'KREDIYA':567.15,'SOLVE':329.46,'BANISTMO RECOVERY':29.64
+};
+// Objetivos estrategicos por cartera
+var OBJ_ESTRATEGICOS={
+  'BANISTMO ACTIVA':  ['Recordar Promesas','Aumentar efectividad'],
+  'TIGO':             ['Recordar Promesas',''],
+  'SURA':             ['Recordar Promesas','Aumentar efectividad'],
+  'KREDIYA':          ['Aumentar efectividad','Barrido cartera completa'],
+  'SOLVE':            ['Aumentar efectividad','Barrido cartera completa'],
+  'BANISTMO':         ['Aumentar efectividad',''],
+  'BAC RECOVERY':     ['Aumentar efectividad',''],
+  'BANISTMO RECOVERY':['Aumentar efectividad',''],
+  'GLOBAL BANK':      ['Aumentar efectividad',''],
+  'MULTIBANK':        ['Aumentar efectividad','']
+};
+
 var state={
   activeSemanaId:'sem1', selectedWeeks:['sem1'],
-  selectedCarteras:['BAC RECOVERY','BANISTMO','BANISTMO ACTIVA','BANISTMO RECOVERY','GLOBAL BANK','KREDIYA','MULTIBANK','SOLVE','SURA','TIGO'],
+  selectedCarteras:['BANISTMO ACTIVA','TIGO','SURA','KREDIYA','SOLVE','BANISTMO','BAC RECOVERY','BANISTMO RECOVERY','GLOBAL BANK','MULTIBANK'],
   semanas:[
     {id:'sem1',nombre:'Semana 1 (04-07 Mar)',fechaInicio:'2026-03-04',fechaFin:'2026-03-07',manual:{
-      'BAC RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'BANISTMO':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'BANISTMO ACTIVA':{minDisp:677,metaCumplida:0.64,objPromesas:1232,resPromesas:1323},
-      'BANISTMO RECOVERY':{minDisp:20,metaCumplida:0.21,objPromesas:90,resPromesas:90},
-      'GLOBAL BANK':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'KREDIYA':{minDisp:92,metaCumplida:0.10,objPromesas:110,resPromesas:271},
-      'MULTIBANK':{minDisp:24,metaCumplida:0.30,objPromesas:39,resPromesas:49},
-      'SOLVE':{minDisp:78,metaCumplida:0.11,objPromesas:297,resPromesas:199},
-      'SURA':{minDisp:539,metaCumplida:0.70,objPromesas:2148,resPromesas:3277},
-      'TIGO':{minDisp:694,metaCumplida:0.70,objPromesas:664,resPromesas:701}
+      'BAC RECOVERY':     {minDisp:62,  metaCumplida:0,    objPromesas:329,  resPromesas:0},
+      'BANISTMO':         {minDisp:0,   metaCumplida:0,    objPromesas:0,    resPromesas:0},
+      'BANISTMO ACTIVA':  {minDisp:1354,metaCumplida:0.217,objPromesas:2860, resPromesas:1323},
+      'BANISTMO RECOVERY':{minDisp:40,  metaCumplida:0.127,objPromesas:520,  resPromesas:90},
+      'GLOBAL BANK':      {minDisp:0,   metaCumplida:0,    objPromesas:0,    resPromesas:0},
+      'KREDIYA':          {minDisp:184, metaCumplida:0.033,objPromesas:806,  resPromesas:271},
+      'MULTIBANK':        {minDisp:48,  metaCumplida:0.10, objPromesas:318,  resPromesas:49},
+      'SOLVE':            {minDisp:156, metaCumplida:0.037,objPromesas:1000, resPromesas:199},
+      'SURA':             {minDisp:1078,metaCumplida:0.233,objPromesas:2148, resPromesas:3277},
+      'TIGO':             {minDisp:1388,metaCumplida:0.233,objPromesas:2115, resPromesas:701}
     }},
     {id:'sem2',nombre:'Semana 2 (09-14 Mar)',fechaInicio:'2026-03-09',fechaFin:'2026-03-14',manual:{
-      'BAC RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'BANISTMO':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'BANISTMO ACTIVA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'BANISTMO RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'GLOBAL BANK':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'KREDIYA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'MULTIBANK':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'SOLVE':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'SURA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'TIGO':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0}
+      'BAC RECOVERY':     {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO':         {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO ACTIVA':  {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'GLOBAL BANK':      {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'KREDIYA':          {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'MULTIBANK':        {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'SOLVE':            {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'SURA':             {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'TIGO':             {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0}
     }},
     {id:'sem3',nombre:'Semana 3 (16-21 Mar)',fechaInicio:'2026-03-16',fechaFin:'2026-03-21',manual:{
-      'BAC RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'BANISTMO':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'BANISTMO ACTIVA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'BANISTMO RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'GLOBAL BANK':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'KREDIYA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'MULTIBANK':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'SOLVE':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
-      'SURA':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},'TIGO':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0}
+      'BAC RECOVERY':     {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO':         {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO ACTIVA':  {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'BANISTMO RECOVERY':{minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'GLOBAL BANK':      {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'KREDIYA':          {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'MULTIBANK':        {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'SOLVE':            {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'SURA':             {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0},
+      'TIGO':             {minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0}
     }}
   ]
 };
 
 function fmt(n,d){d=d||0;if(isNaN(n)||n==null)return'-';return Number(n).toLocaleString('es-PA',{minimumFractionDigits:d,maximumFractionDigits:d});}
+// fmtN: integer with thousands separator (no decimals)
+function fmtN(n){if(isNaN(n)||n==null)return'-';return Number(n).toLocaleString('es-PA',{minimumFractionDigits:0,maximumFractionDigits:0});}
+// fmtMon: currency format B/.
+function fmtMon(n){if(isNaN(n)||n==null)return'B/. -';return'B/. '+Number(n).toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fUSD(n){return'$'+fmt(n,2);}
 function fPct(n){return(n*100).toFixed(1)+'%';}
+function fmtPct(n){return(n*100).toFixed(1)+'%';}
 function getActive(){return state.semanas.find(function(s){return s.id===state.activeSemanaId;});}
 function toast(msg,type){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+(type||'ok');setTimeout(function(){el.className='toast';},2800);}
 function loading(on){document.getElementById('lbar').className='lbar'+(on?' on':'');}
@@ -445,10 +551,27 @@ function fetchParalelo(id,tab){
   function exito(rows,metodo){
     if(done)return;
     done=true;
-    // Normalize column keys (trim whitespace, handle BOM)
+    // Normalize column keys: trim, remove BOM, map accented variants
+    var COL_MAP={
+      'Fecha:':'Fecha:','fecha:':'Fecha:','Fecha':'Fecha:',
+      'empresa_cliente':'empresa_cliente','Empresa_cliente':'empresa_cliente',
+      'MINUTOS CONSUMIDOS':'MINUTOS CONSUMIDOS','Minutos Consumidos':'MINUTOS CONSUMIDOS',
+      'clasificacion':'clasificacion','Clasificacion':'clasificacion',
+      'Sentimiento del Usuario':'Sentimiento del Usuario',
+      'En Buzón de Voz':'En Buzón de Voz','En Buzon de Voz':'En Buzón de Voz',
+      'Duración en Segundos':'Duración en Segundos',
+      'Duracion en Segundos':'Duración en Segundos',
+      'monto_pagar':'monto_pagar','nombre_contacto':'nombre_contacto'
+    };
     rows=rows.map(function(r){
       var n={};
-      Object.keys(r).forEach(function(k){n[k.replace(/^\uFEFF/,'').trim()]=r[k];});
+      Object.keys(r).forEach(function(k){
+        var clean=k.replace(/^﻿/,'').trim();
+        var mapped=COL_MAP[clean]||clean;
+        n[mapped]=r[k];
+        // Always keep both accented and plain versions for safety
+        if(mapped!==clean)n[clean]=r[k];
+      });
       return n;
     });
     // Auto-detect date format
@@ -520,13 +643,19 @@ function splitL(s,sep){
 
 function getMinCOL(r){
   // Robust: find MINUTOS CONSUMIDOS regardless of exact key variation
-  if(r['MINUTOS CONSUMIDOS']!=null)return parseFloat(r['MINUTOS CONSUMIDOS'])||0;
+  var candidates=['MINUTOS CONSUMIDOS','Minutos Consumidos','minutos consumidos','MINUTOS_CONSUMIDOS'];
+  for(var j=0;j<candidates.length;j++){if(r[candidates[j]]!=null)return parseFloat(r[candidates[j]])||0;}
   var keys=Object.keys(r);
   for(var i=0;i<keys.length;i++){
-    if(keys[i].toUpperCase().replace(/\s+/g,' ').trim()==='MINUTOS CONSUMIDOS')
+    if(keys[i].toUpperCase().replace(/[^A-Z]/g,' ').replace(/\s+/g,' ').trim()==='MINUTOS CONSUMIDOS')
       return parseFloat(r[keys[i]])||0;
   }
   return 0;
+}
+function getField(r,field,fallbacks){
+  if(r[field]!=null)return r[field];
+  for(var i=0;fallbacks&&i<fallbacks.length;i++){if(r[fallbacks[i]]!=null)return r[fallbacks[i]];}
+  return null;
 }
 
 function poblarCarteraFilter(){
@@ -544,10 +673,10 @@ function getFiltered(){
   var hasta=document.getElementById('fHasta').value;
   var selC=state.selectedCarteras;
   return rawData.filter(function(r){
-    var d=normDate(r['Fecha:']||r['Fecha']||'');
+    var d=normDate(r['Fecha:']||r['Fecha']||r['fecha:']||r['fecha']||'');
     if(desde&&d<desde)return false;
     if(hasta&&d>hasta)return false;
-    var c=(r['empresa_cliente']||'').trim();
+    var c=(r['empresa_cliente']||r['Empresa_cliente']||r['EMPRESA_CLIENTE']||'').trim();
     if(selC.indexOf(c)<0)return false;
     return true;
   });
@@ -562,13 +691,20 @@ function limpiarFiltro(){
 
 function getMinsCons(sem){
   if(!rawData.length)return{};
-  var desde=sem.fechaInicio,hasta=sem.fechaFin;
+  // Respect date filter if set, otherwise use semana's own range
+  var fD=document.getElementById('fDesde').value;
+  var fH=document.getElementById('fHasta').value;
+  var desde=fD||sem.fechaInicio;
+  var hasta=fH||sem.fechaFin;
+  // Clamp to semana range so cross-semana filters work correctly
+  if(desde<sem.fechaInicio)desde=sem.fechaInicio;
+  if(hasta>sem.fechaFin)hasta=sem.fechaFin;
   var selC=state.selectedCarteras;
   var res={};
   rawData.forEach(function(r){
-    var d=normDate(r['Fecha:']||r['Fecha']||'');
+    var d=normDate(r['Fecha:']||r['Fecha']||r['fecha:']||r['fecha']||'');
     if(!d||d<desde||d>hasta)return;
-    var c=(r['empresa_cliente']||'').trim();
+    var c=(r['empresa_cliente']||r['Empresa_cliente']||r['EMPRESA_CLIENTE']||'').trim();
     if(selC.indexOf(c)<0)return;
     var m=getMinCOL(r);
     if(c)res[c]=(res[c]||0)+m;
@@ -628,43 +764,83 @@ function renderKPI(){
   var diff=totRes-totObj;
   var acum=state.semanas.reduce(function(a,s){return a+CARTERAS.reduce(function(b,c){return b+(s.manual[c]?s.manual[c].resPromesas||0:0);},0);},0);
   document.getElementById('fCount').textContent=getFiltered().length;
+  // Presupuesto total de carteras activas
+  var activeCarts2=CARTERAS.filter(function(c){return state.selectedCarteras.indexOf(c)>=0;});
+  var totPresup=activeCarts2.reduce(function(a,c){return a+(PRESUPUESTO[c]||0);},0);
+  var totGastoE=activeCarts2.reduce(function(a,c){return a+(GASTO_EXTRA[c]||0);},0);
+  var totMinAsig=activeCarts2.reduce(function(a,c){return a+(MIN_ASIGNADOS[c]||0);},0);
+  var totCostoFull=totMin*CPM+totGastoE;
+  var pctMin=totMinAsig>0?totMin/totMinAsig:0;
   var cards=[
-    {l:'Min. Consumidos',v:fmt(totMin),s:'Esta semana \u00b7 Sheets',c:''},
-    {l:'Costo Total AV',v:fUSD(totMin*CPM),s:'@ $'+CPM+'/min',c:'w'},
-    {l:'Objetivo Promesas',v:fmt(totObj),s:'Meta fijada',c:''},
-    {l:'Resultado Promesas',v:fmt(totRes),s:'Resultado real',c:diff>=0?'g':'r'},
-    {l:'Diferencia',v:(diff>=0?'+':'')+fmt(diff),s:'vs objetivo',c:diff>=0?'g':'r'},
-    {l:'Acumulado Total',v:fmt(acum),s:'Todas las semanas',c:'p'}
+    {l:'Min. Consumidos',v:fmtN(totMin),s:(totMinAsig>0?'de '+fmtN(totMinAsig)+' asignados':'')+' · Sheets',c:pctMin>=0.9?'r':pctMin>=0.6?'w':''},
+    {l:'Costo Total',v:fmtMon(totCostoFull),s:'AV + gastos adicionales',c:'w'},
+    {l:'Presupuesto',v:fmtMon(totPresup),s:'Total carteras seleccionadas',c:''},
+    {l:'Objetivo Promesas',v:fmtN(totObj),s:'Meta fijada',c:''},
+    {l:'Resultado Promesas',v:fmtN(totRes),s:'Resultado real',c:diff>=0?'g':'r'},
+    {l:'Diferencia',v:(diff>=0?'+':'')+fmtN(diff),s:'vs objetivo',c:diff>=0?'g':'r'},
+    {l:'Acumulado Total',v:fmtN(acum),s:'Todas las semanas',c:'p'}
   ];
   document.getElementById('kgrid').innerHTML=cards.map(function(k){return'<div class="kpi '+k.c+'"><div class="kl">'+k.l+'</div><div class="kv">'+k.v+'</div><div class="ks">'+k.s+'</div></div>';}).join('');
 }
 
 function renderMainTable(){
   var rows=buildData();if(!rows.length)return;
-  var tD=0,tC=0,tCo=0,tO=0,tR=0;
+  var tD=0,tC=0,tCo=0,tO=0,tR=0,tPP=0,tMA=0;
   var trs=rows.map(function(r){
-    tD+=r.minDisp;tC+=r.minCons;tCo+=r.costo;tO+=r.objPromesas;tR+=r.resPromesas;
-    var db=r.diff===0?'<span class="badge ze">= 0</span>':r.diff>0?'<span class="badge up">&#9650; +'+fmt(r.diff)+'</span>':'<span class="badge dn">&#9660; '+fmt(r.diff)+'</span>';
+    var c=r.c;
+    var minAsig = MIN_ASIGNADOS[c]||0;
+    var presup  = PRESUPUESTO[c]||0;
+    var gastoE  = GASTO_EXTRA[c]||0;
+    // Costo total = AV cost + additional expense
+    var costoTotal = r.costo + gastoE;
+
+    tD+=r.minDisp; tC+=r.minCons; tCo+=costoTotal;
+    tO+=r.objPromesas; tR+=r.resPromesas;
+    tPP+=presup; tMA+=minAsig;
+
+    var db=r.diff===0?'<span class="badge ze">= 0</span>':
+           r.diff>0?'<span class="badge up">&#9650; +'+fmtN(r.diff)+'</span>':
+                    '<span class="badge dn">&#9660; '+fmtN(r.diff)+'</span>';
     var pc=r.pct>=1?'var(--green)':r.pct>=.7?'var(--warn)':'var(--red)';
-    var bw=Math.min(100,r.pct*100).toFixed(1),bc=r.pct>=1?'#3ecf8e':r.pct>=.7?'#f5a623':'#ff6b6b';
-    return'<tr><td class="cart">'+r.c+'</td>'+
-      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+r.c+'" data-field="minDisp">'+fmt(r.minDisp)+'</td>'+
-      '<td class="r mono">'+fmt(r.minCons)+'</td>'+
-      '<td class="r mono" style="color:var(--warn)">'+fUSD(r.costo)+'</td>'+
-      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+r.c+'" data-field="metaCumplida">'+fPct(r.metaCumplida)+'</td>'+
-      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+r.c+'" data-field="objPromesas">'+fmt(r.objPromesas)+'</td>'+
-      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+r.c+'" data-field="resPromesas">'+fmt(r.resPromesas)+'</td>'+
+    var bw=Math.min(100,r.pct*100).toFixed(1);
+    var bc=r.pct>=1?'#3ecf8e':r.pct>=.7?'#f5a623':'#ff6b6b';
+    var minPct  = minAsig>0 ? r.minCons/minAsig : 0;
+    var minColor= minPct>=0.9?'var(--red)':minPct>=0.6?'var(--warn)':'var(--green)';
+    // Show tooltip-hint if extra cost was added
+    var costoCell = gastoE>0
+      ? '<td class="r mono" style="color:var(--warn)" title="AV: '+fUSD(r.costo)+' + Extra: '+fmtMon(gastoE)+'">'+fmtMon(costoTotal)+'</td>'
+      : '<td class="r mono" style="color:var(--warn)">'+fmtMon(costoTotal)+'</td>';
+
+    return'<tr>'+
+      '<td class="cart" style="font-size:11px">'+c+'</td>'+
+      '<td class="r mono">'+fmtN(minAsig)+'</td>'+
+      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+c+'" data-field="minDisp">'+fmtN(r.minDisp)+'</td>'+
+      '<td class="r mono" style="color:'+minColor+'">'+fmtN(r.minCons)+'</td>'+
+      costoCell+
+      '<td class="r mono" style="color:var(--text2)">'+fmtMon(presup)+'</td>'+
+
+      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+c+'" data-field="objPromesas">'+fmtN(r.objPromesas)+'</td>'+
+      '<td class="r mono ecell" data-sid="'+r.editSemId+'" data-cart="'+c+'" data-field="resPromesas">'+fmtN(r.resPromesas)+'</td>'+
       '<td>'+db+'</td>'+
       '<td class="r"><div class="pb-wrap"><div class="pb"><div class="pb-f" style="width:'+bw+'%;background:'+bc+'"></div></div>'+
-      '<span class="mono" style="color:'+pc+';font-weight:600;font-size:11px">'+fPct(r.pct)+'</span></div></td></tr>';
+      '<span class="mono" style="color:'+pc+';font-weight:600;font-size:11px">'+fmtPct(r.pct)+'</span></div></td>'+
+      '</tr>';
   }).join('');
   var td=tR-tO,tp=tO>0?tR/tO:0;
-  var tdb=td===0?'<span class="badge ze">= 0</span>':td>0?'<span class="badge up">&#9650; +'+fmt(td)+'</span>':'<span class="badge dn">&#9660; '+fmt(td)+'</span>';
+  var tdb=td===0?'<span class="badge ze">= 0</span>':
+          td>0?'<span class="badge up">&#9650; +'+fmtN(td)+'</span>':
+               '<span class="badge dn">&#9660; '+fmtN(td)+'</span>';
   document.getElementById('mainTbody').innerHTML=trs+
-    '<tr class="tot"><td class="cart">TOTAL</td><td class="r mono">'+fmt(tD)+'</td><td class="r mono">'+fmt(tC)+'</td>'+
-    '<td class="r mono" style="color:var(--warn)">'+fUSD(tCo)+'</td><td class="r">-</td>'+
-    '<td class="r mono">'+fmt(tO)+'</td><td class="r mono">'+fmt(tR)+'</td><td>'+tdb+'</td>'+
-    '<td class="r mono" style="color:'+(tp>=1?'var(--green)':'var(--warn)')+';font-weight:700">'+fPct(tp)+'</td></tr>';
+    '<tr class="tot"><td class="cart" style="font-size:11px">TOTAL</td>'+
+    '<td class="r mono">'+fmtN(tMA)+'</td>'+
+    '<td class="r mono">'+fmtN(tD)+'</td>'+
+    '<td class="r mono">'+fmtN(tC)+'</td>'+
+    '<td class="r mono" style="color:var(--warn)">'+fmtMon(tCo)+'</td>'+
+    '<td class="r mono">'+fmtMon(tPP)+'</td>'+
+    '<td class="r mono">'+fmtN(tO)+'</td>'+
+    '<td class="r mono">'+fmtN(tR)+'</td>'+
+    '<td>'+tdb+'</td>'+
+    '<td class="r mono" style="color:'+(tp>=1?'var(--green)':'var(--warn)')+';font-weight:700">'+fmtPct(tp)+'</td></tr>';
 }
 
 document.getElementById('mainTbody').addEventListener('click',function(e){
@@ -686,18 +862,77 @@ function saveCell(inp,semId,cartera,field){
   renderAll();
 }
 
+function getMinsConsSem(semId){
+  // Sum minutes from rawData for a specific semana, all carteras
+  var sem=state.semanas.find(function(s){return s.id===semId;});
+  if(!sem||!rawData.length)return{};
+  var desde=sem.fechaInicio, hasta=sem.fechaFin;
+  var res={};
+  rawData.forEach(function(r){
+    var d=normDate(r['Fecha:']||r['Fecha']||r['fecha:']||r['fecha']||'');
+    if(!d||d<desde||d>hasta)return;
+    var c=(r['empresa_cliente']||r['Empresa_cliente']||r['EMPRESA_CLIENTE']||'').trim();
+    var m=getMinCOL(r);
+    if(c)res[c]=(res[c]||0)+m;
+  });
+  return res;
+}
+
 function renderAcumulado(){
   var sems=state.semanas;
-  var th='<tr><th>Cartera</th>';sems.forEach(function(s){th+='<th class="r">'+s.nombre+'</th>';});th+='<th class="r ah">TOTAL</th></tr>';
+  // Header
+  var th='<tr><th style="min-width:160px">Cartera</th>';
+  sems.forEach(function(s){th+='<th class="r" style="min-width:130px">'+s.nombre+'</th>';});
+  th+='<th class="r ah" style="min-width:110px">TOTAL</th></tr>';
   document.getElementById('acumThead').innerHTML=th;
-  var sTots={};sems.forEach(function(s){sTots[s.id]=0;});var grand=0,body='';
+
+  // Build mins-from-sheets per semana (for the bottom section)
+  var minsPerSem={};
+  sems.forEach(function(s){minsPerSem[s.id]=getMinsConsSem(s.id);});
+
+  var sTots={},mTots={};
+  sems.forEach(function(s){sTots[s.id]=0;mTots[s.id]=0;});
+  var grand=0, grandMins=0, body='';
+
   CARTERAS.forEach(function(c){
-    var rt=0,tds='';
-    sems.forEach(function(s){var v=s.manual[c]?s.manual[c].resPromesas||0:0;sTots[s.id]+=v;rt+=v;tds+='<td class="r">'+fmt(v)+'</td>';});
-    grand+=rt;body+='<tr><td>'+c+'</td>'+tds+'<td class="r ah">'+fmt(rt)+'</td></tr>';
+    var rt=0, tds='';
+    sems.forEach(function(s){
+      var v=s.manual[c]?s.manual[c].resPromesas||0:0;
+      sTots[s.id]+=v; rt+=v;
+      // Color zero cells in muted style
+      var style=v===0?'color:var(--text3)':'';
+      tds+='<td class="r mono" style="'+style+'">'+fmtN(v)+'</td>';
+    });
+    grand+=rt;
+    body+='<tr><td class="cart" style="font-size:11px">'+c+'</td>'+tds+
+      '<td class="r mono ah">'+fmtN(rt)+'</td></tr>';
   });
-  var ftds='';sems.forEach(function(s){ftds+='<td class="r">'+fmt(sTots[s.id])+'</td>';});
-  body+='<tr class="tot"><td>TOTAL</td>'+ftds+'<td class="r ah">'+fmt(grand)+'</td></tr>';
+
+  // Total row for promesas
+  var ftds='';
+  sems.forEach(function(s){ftds+='<td class="r mono">'+fmtN(sTots[s.id])+'</td>';});
+  body+='<tr class="tot"><td style="font-size:11px">TOTAL PROMESAS</td>'+ftds+'<td class="r mono ah">'+fmtN(grand)+'</td></tr>';
+
+  // Separator row
+  body+='<tr><td colspan="'+(sems.length+2)+'" style="background:var(--s0);padding:4px 12px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">Minutos Consumidos (Sheets)</td></tr>';
+
+  // Mins from Sheets per semana per cartera
+  CARTERAS.forEach(function(c){
+    var rt=0, tds='';
+    sems.forEach(function(s){
+      var v=(minsPerSem[s.id]&&minsPerSem[s.id][c])||0;
+      mTots[s.id]+=v; rt+=v;
+      var style=v===0?'color:var(--text3)':'color:var(--warn)';
+      tds+='<td class="r mono" style="'+style+'">'+fmtN(v)+'</td>';
+    });
+    grandMins+=rt;
+    body+='<tr><td style="font-size:11px;color:var(--text2)">'+c+'</td>'+tds+
+      '<td class="r mono" style="color:var(--warn)">'+fmtN(rt)+'</td></tr>';
+  });
+  var mTds='';
+  sems.forEach(function(s){mTds+='<td class="r mono" style="color:var(--warn)">'+fmtN(mTots[s.id])+'</td>';});
+  body+='<tr class="tot"><td style="font-size:11px">TOTAL MINUTOS</td>'+mTds+'<td class="r mono" style="color:var(--warn)">'+fmtN(grandMins)+'</td></tr>';
+
   document.getElementById('acumTbody').innerHTML=body;
 }
 
@@ -707,32 +942,109 @@ function mkOpts(noLeg){
   if(noLeg)o.plugins.legend.display=false;return o;
 }
 function dc(k){if(charts[k]){charts[k].destroy();charts[k]=null;}}
+function dlPlugin(){return window.ChartDataLabels||null;}
+
+function mkDL(fmt_fn,color){
+  // datalabels config
+  return{
+    display:function(ctx){return ctx.dataset.data[ctx.dataIndex]!==0;},
+    color:color||'#dde3f0',
+    font:{family:'JetBrains Mono',size:9,weight:'600'},
+    anchor:'end',align:'top',
+    formatter:fmt_fn||function(v){return v>999?fmtN(v):v;}
+  };
+}
+
+function mkOptsDL(noLeg,fmt_fn,labelColor){
+  var o=mkOpts(noLeg);
+  var dl=dlPlugin();
+  if(dl){
+    o.plugins=o.plugins||{};
+    o.plugins.datalabels=mkDL(fmt_fn,labelColor);
+  }
+  return o;
+}
+
 function renderCharts(){
   var rows=buildData(),L=rows.map(function(r){return r.c;});
   var get=function(f){return rows.map(function(r){return r[f]||0;});};
   var objs=get('objPromesas'),ress=get('resPromesas'),mins=get('minCons'),costs=get('costo'),deltas=get('diff');
   var clrs=L.map(function(c){return PIE_CLR[CARTERAS.indexOf(c)]||'#888';});
-  dc('bar');charts.bar=new Chart(document.getElementById('cBar'),{type:'bar',data:{labels:L,datasets:[
-    {label:'Objetivo',data:objs,backgroundColor:'rgba(91,141,238,.3)',borderColor:'#5b8dee',borderWidth:1.5,borderRadius:4},
-    {label:'Resultado',data:ress,backgroundColor:'rgba(62,207,142,.3)',borderColor:'#3ecf8e',borderWidth:1.5,borderRadius:4}
-  ]},options:mkOpts()});
-  dc('cost');charts.cost=new Chart(document.getElementById('cCost'),{type:'bar',data:{labels:L,datasets:[
-    {label:'Costo ($)',data:costs,backgroundColor:'rgba(245,166,35,.3)',borderColor:'#f5a623',borderWidth:1.5,borderRadius:4}
-  ]},options:mkOpts(true)});
-  dc('pie');charts.pie=new Chart(document.getElementById('cPie'),{type:'doughnut',data:{labels:L,datasets:[{
-    data:mins,backgroundColor:clrs.map(function(c){return c+'88';}),borderColor:clrs,borderWidth:2
-  }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#7e8aaa',font:{family:'Sora',size:10},boxWidth:12}}}}});
-  dc('line');charts.line=new Chart(document.getElementById('cLine'),{type:'line',data:{
-    labels:state.semanas.map(function(s){return s.nombre;}),
-    datasets:CARTERAS.map(function(c,i){return{label:c,
-      data:state.semanas.map(function(s){return s.manual[c]?s.manual[c].resPromesas||0:0;}),
-      borderColor:PIE_CLR[i]||'#fff',backgroundColor:(PIE_CLR[i]||'#fff')+'22',borderWidth:2,pointRadius:4,tension:.35};})
-  },options:mkOpts()});
-  dc('delta');charts.delta=new Chart(document.getElementById('cDelta'),{type:'bar',data:{labels:L,datasets:[{
-    label:'Diferencia',data:deltas,
-    backgroundColor:deltas.map(function(d){return d>=0?'rgba(62,207,142,.3)':'rgba(255,107,107,.25)';}),
-    borderColor:deltas.map(function(d){return d>=0?'#3ecf8e':'#ff6b6b';}),borderWidth:1.5,borderRadius:4
-  }]},options:mkOpts(true)});
+  var dl=dlPlugin();
+  var pluginsArr=dl?[dl]:[];
+
+  // Bar: Objetivo vs Resultado — labels as integers with thousands sep
+  dc('bar');
+  charts.bar=new Chart(document.getElementById('cBar'),{
+    type:'bar', plugins:pluginsArr,
+    data:{labels:L,datasets:[
+      {label:'Objetivo',data:objs,backgroundColor:'rgba(91,141,238,.3)',borderColor:'#5b8dee',borderWidth:1.5,borderRadius:4,datalabels:{color:'#5b8dee'}},
+      {label:'Resultado',data:ress,backgroundColor:'rgba(62,207,142,.3)',borderColor:'#3ecf8e',borderWidth:1.5,borderRadius:4,datalabels:{color:'#3ecf8e'}}
+    ]},
+    options:mkOptsDL(false,function(v){return fmtN(v);})
+  });
+
+  // Cost bar — format as $
+  dc('cost');
+  charts.cost=new Chart(document.getElementById('cCost'),{
+    type:'bar', plugins:pluginsArr,
+    data:{labels:L,datasets:[
+      {label:'Costo ($)',data:costs,backgroundColor:'rgba(245,166,35,.3)',borderColor:'#f5a623',borderWidth:1.5,borderRadius:4}
+    ]},
+    options:mkOptsDL(true,function(v){return v>0?'$'+v.toFixed(0):'';},  '#f5a623')
+  });
+
+  // Pie donut — % labels
+  dc('pie');
+  var pieTotal=mins.reduce(function(a,v){return a+v;},0);
+  charts.pie=new Chart(document.getElementById('cPie'),{
+    type:'doughnut', plugins:pluginsArr,
+    data:{labels:L,datasets:[{
+      data:mins,backgroundColor:clrs.map(function(c){return c+'88';}),borderColor:clrs,borderWidth:2
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{
+      legend:{position:'right',labels:{color:'#7e8aaa',font:{family:'Sora',size:10},boxWidth:12}},
+      datalabels:dl?{
+        display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},
+        color:'#dde3f0',font:{size:9,weight:'700'},
+        formatter:function(v){return pieTotal>0?(v/pieTotal*100).toFixed(1)+'%':'';}
+      }:{}
+    }}
+  });
+
+  // Line — promesas evolution per semana
+  dc('line');
+  var activeCarts3=state.selectedCarteras.length>0
+    ?CARTERAS.filter(function(c){return state.selectedCarteras.indexOf(c)>=0;})
+    :CARTERAS;
+  charts.line=new Chart(document.getElementById('cLine'),{
+    type:'line', plugins:pluginsArr,
+    data:{
+      labels:state.semanas.map(function(s){return s.nombre;}),
+      datasets:activeCarts3.map(function(c,i){return{
+        label:c,
+        data:state.semanas.map(function(s){return s.manual[c]?s.manual[c].resPromesas||0:0;}),
+        borderColor:PIE_CLR[CARTERAS.indexOf(c)]||'#fff',
+        backgroundColor:(PIE_CLR[CARTERAS.indexOf(c)]||'#fff')+'22',
+        borderWidth:2,pointRadius:5,tension:.35,
+        datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'top',align:'top',font:{size:9},color:PIE_CLR[CARTERAS.indexOf(c)]||'#fff',formatter:function(v){return fmtN(v);}}
+      };})
+    },
+    options:mkOptsDL(false,null)
+  });
+
+  // Delta bar — difference
+  dc('delta');
+  charts.delta=new Chart(document.getElementById('cDelta'),{
+    type:'bar', plugins:pluginsArr,
+    data:{labels:L,datasets:[{
+      label:'Diferencia',data:deltas,
+      backgroundColor:deltas.map(function(d){return d>=0?'rgba(62,207,142,.3)':'rgba(255,107,107,.25)';}),
+      borderColor:deltas.map(function(d){return d>=0?'#3ecf8e':'#ff6b6b';}),
+      borderWidth:1.5,borderRadius:4
+    }]},
+    options:mkOptsDL(true,function(v){return(v>=0?'+':'')+fmtN(v);},function(ctx){return ctx.dataset.data[ctx.dataIndex]>=0?'#3ecf8e':'#ff6b6b';})
+  });
 }
 
 var P_ROWS=[{v:'empresa_cliente',l:'Cartera'},{v:'clasificacion',l:'Clasificacion'},{v:'Sentimiento del Usuario',l:'Sentimiento'},{v:'En Buzon de Voz',l:'En Buzon de Voz'},{v:'semana',l:'Semana'},{v:'nombre_contacto',l:'Contacto'}];
@@ -749,10 +1061,10 @@ function buildPivotSrc(){
     var sem=state.semanas.find(function(s){return rd>=s.fechaInicio&&rd<=s.fechaFin;});
     var mins=getMinCOL(r);
     var monto=parseFloat((r['monto_pagar']||'0').toString().replace(/[^0-9.-]/g,''))||0;
-    var dur=parseFloat(r['Duracion en Segundos']||r['Dur\u00e1cion en Segundos']||0);
+    var dur=parseFloat(getField(r,'Duraci\u00f3n en Segundos',['Duracion en Segundos','Duraci\u00f3n en Segundos','duration_seconds'])||0);
     return{'empresa_cliente':emp,'clasificacion':(r['clasificacion']||'-').trim(),
       'Sentimiento del Usuario':(r['Sentimiento del Usuario']||'-').trim(),
-      'En Buzon de Voz':(r['En Buz\u00f3n de Voz']||r['En Buzon de Voz']||'-').trim(),
+      'En Buzon de Voz':(getField(r,'En Buz\u00f3n de Voz',['En Buzon de Voz','En_buzon_de_voz'])||'-').toString().trim(),
       'nombre_contacto':(r['nombre_contacto']||'-').trim(),'semana':sem?sem.nombre:'Sin semana',
       'MINUTOS CONSUMIDOS':mins,'costo':mins*CPM,'monto_pagar':monto,'count_rows':1,'Duracion en Segundos':dur};
   });
@@ -858,15 +1170,17 @@ function toggleCfg(){document.getElementById('cfgPanel').classList.toggle('hidde
 function exportJSON(){var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reporte_av_'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exportado','ok');}
 // ── RECOMENDACIONES ENGINE ──
 function calcRecomendaciones(){
-  var rows = buildData(); // uses current semana/cartera filters
+  var rows = buildData();
   if(!rows.length) return;
 
   var cards = [];
   rows.forEach(function(r){
     var c       = r.c;
     var mins    = r.minCons;
+    var minAsig = MIN_ASIGNADOS[c]||0;
+    var presup  = PRESUPUESTO[c]||0;
+    var gastoE  = GASTO_EXTRA[c]||0;
     var calls   = 0;
-    // Count calls from rawData for this cartera across active semanas
     var activeSems = state.selectedWeeks.length > 0
       ? state.semanas.filter(function(s){ return state.selectedWeeks.indexOf(s.id) >= 0; })
       : state.semanas;
@@ -902,14 +1216,15 @@ function calcRecomendaciones(){
       type = 'sofia';
       tag  = '&#129302; Usar Sofia';
       icon = '&#128161;';
+      var minInfo = minAsig>0?' ('+fmtN(mins)+' de '+fmtN(minAsig)+' min asignados)':' ('+fmtN(mins)+' min)';
       if(noData){
-        body = 'Sin contacto ni objetivos registrados en el periodo. Se recomienda activar a <strong>Sofia</strong> para generar los primeros contactos efectivos y establecer una base de clientes activos en esta cartera.';
+        body = 'Sin contacto ni objetivos registrados en el periodo'+minInfo+'. Se recomienda activar a <strong>Sofia</strong> para generar los primeros contactos efectivos y establecer una base de clientes activos.';
       } else if(pct === 1.0 && obj > 0){
-        body = 'El resultado iguala exactamente al objetivo ('+(res)+' promesas) sin superarlo, con bajo volumen de contacto ('+(mins)+' min). Las promesas no crecen. <strong>Sofia</strong> puede generar efectivas adicionales para superar la meta.';
+        body = 'Resultado igual al objetivo ('+fmtN(res)+' promesas) sin superarlo'+minInfo+'. Las promesas no crecen. <strong>Sofia</strong> puede generar efectivas adicionales para superar la meta de '+fmtN(obj)+'.';
       } else if(pct < 1.0 && obj > 0){
-        body = 'Logro del '+(pct*100).toFixed(1)+'% con solo '+(mins)+' min de contacto. El AV no esta alcanzando el objetivo. Se recomienda activar <strong>Sofia</strong> para incrementar los contactos efectivos y elevar el cumplimiento.';
+        body = 'Logro del '+(pct*100).toFixed(1)+'%'+minInfo+'. No se alcanza el objetivo de '+fmtN(obj)+' promesas. Activar <strong>Sofia</strong> para aumentar contactos efectivos.';
       } else {
-        body = 'Contacto limitado ('+(mins)+' min, '+(calls)+' llamadas). Para carteras con bajo volumen de interaccion, <strong>Sofia</strong> puede aumentar el numero de efectivas y mejorar resultados.';
+        body = 'Bajo volumen de contacto'+minInfo+', '+fmtN(calls)+' llamadas. <strong>Sofia</strong> puede aumentar efectivas y mejorar resultados en esta cartera.';
       }
     } else if(watchCriteria){
       type = 'watch';
@@ -949,7 +1264,32 @@ function calcRecomendaciones(){
   }).join('');
 }
 
-function renderAll(){renderTabs();renderKPI();renderMainTable();renderAcumulado();renderCharts();renderPivot();if(rawData.length)calcRecomendaciones();}
+function renderObjetivos(){
+  var tbody=document.getElementById('objTbody');
+  if(!tbody)return;
+  var active=state.selectedCarteras.length>0?state.selectedCarteras:CARTERAS;
+  tbody.innerHTML=active.map(function(c){
+    var objs=OBJ_ESTRATEGICOS[c]||[];
+    var o1=objs[0]||'-';
+    var o2=objs[1]||'';
+    var tagStyle='display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;';
+    function tag(txt){
+      if(!txt)return'<span style="color:var(--text3);font-size:11px">-</span>';
+      var bg=txt.indexOf('Recordar')>=0?'rgba(91,141,238,.15)':
+             txt.indexOf('Barrido')>=0?'rgba(167,139,250,.15)':
+             'rgba(62,207,142,.15)';
+      var col=txt.indexOf('Recordar')>=0?'var(--accent)':
+              txt.indexOf('Barrido')>=0?'var(--purple)':
+              'var(--green)';
+      return'<span style="'+tagStyle+'background:'+bg+';color:'+col+'">'+txt+'</span>';
+    }
+    return'<tr><td class="cart" style="font-size:11px">'+c+'</td>'+
+           '<td>'+tag(o1)+'</td>'+
+           '<td>'+tag(o2)+'</td></tr>';
+  }).join('');
+}
+
+function renderAll(){renderTabs();renderKPI();renderMainTable();renderAcumulado();renderCharts();renderPivot();renderObjetivos();if(rawData.length)calcRecomendaciones();}
 
 function initCarteraFilter(){
   var container=document.getElementById('carteraCheckboxes');if(!container)return;container.innerHTML='';
@@ -982,6 +1322,10 @@ document.addEventListener('click',function(e){
 
 // Wire up ALL buttons
 document.getElementById('sbToggle').addEventListener('click',toggleSB);
+document.getElementById('btnToggleColInfo').addEventListener('click',function(){
+  var p=document.getElementById('colInfoPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+});
 document.getElementById('btnCarteraToggle').addEventListener('click',function(e){e.stopPropagation();var dd=document.getElementById('carteraDropdown');dd.style.display=dd.style.display==='none'?'block':'none';});
 document.getElementById('btnSelAll').addEventListener('click',function(){selectAllCarteras();});
 document.getElementById('btnSelNone').addEventListener('click',function(){selectNoCarteras();});
@@ -1002,8 +1346,9 @@ document.getElementById('nav2').addEventListener('click',function(){navTo('sec-t
 document.getElementById('nav3').addEventListener('click',function(){navTo('sec-acum','nav3');});
 document.getElementById('nav4').addEventListener('click',function(){navTo('sec-graficas','nav4');});
 document.getElementById('nav5').addEventListener('click',function(){navTo('sec-pivot','nav5');});
-document.getElementById('nav6').addEventListener('click',function(){navTo('sec-recomendaciones','nav6');});
-document.getElementById('nav7').addEventListener('click',function(){navTo('sec-agentes','nav7');});
+document.getElementById('nav6').addEventListener('click',function(){navTo('sec-objetivos','nav6');});
+document.getElementById('nav7').addEventListener('click',function(){navTo('sec-recomendaciones','nav7');});
+document.getElementById('nav8').addEventListener('click',function(){navTo('sec-agentes','nav8');});
 
 (function init(){
   document.getElementById('shUrl').value=SHEET_ID;
