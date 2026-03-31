@@ -518,26 +518,28 @@ function normDate(s){
 
 // Auto-detect date format from loaded data
 function detectDateOrder(rows){
+  // Detect M/D/YYYY vs D/M/YYYY from ambiguous dates (both parts ≤12)
+  // Strategy: collect all dates, find the most common month value,
+  // then check which interpretation matches better
+  var dateCol=state.colMap.fecha;
   var mdCount=0, dmCount=0;
-  for(var i=0;i<Math.min(rows.length,50);i++){
-    var raw=rows[i]['Fecha:']||rows[i]['Fecha']||'';
+  var sample=Math.min(rows.length,200);
+  for(var i=0;i<sample;i++){
+    var raw=rows[i][dateCol]||rows[i]['Fecha:']||rows[i]['Fecha']||'';
     var str=String(raw).trim();
-    var m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if(!m)continue;
-    var p1=parseInt(m[1]),p2=parseInt(m[2]);
-    if(p1>12||p2>12)continue; // unambiguous, skip
-    // Try M/D: month=p1, day=p2
-    var mdDate=m[3]+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0');
-    // Try D/M: day=p1, month=p2
-    var dmDate=m[3]+'-'+String(p2).padStart(2,'0')+'-'+String(p1).padStart(2,'0');
-    // Check which falls in known data range (March 2026)
-    var mdMonth=parseInt(mdDate.split('-')[1]);
-    var dmMonth=parseInt(dmDate.split('-')[1]);
-    if(mdMonth===3) mdCount++;
-    if(dmMonth===3) dmCount++;
+    var mo=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if(!mo)continue;
+    var p1=parseInt(mo[1]),p2=parseInt(mo[2]);
+    if(p1>12){dmCount+=10;continue;} // definitively DD/MM
+    if(p2>12){mdCount+=10;continue;} // definitively MM/DD
+    // Both ≤12: ambiguous — try to use unambiguous rows as calibration
+    // Count doesn't help here, skip
   }
-  var detected = dmCount>mdCount ? 'DM' : 'MD';
-  return detected;
+  // If we found strong signals from unambiguous dates, use them
+  if(mdCount>dmCount) return 'MD';
+  if(dmCount>mdCount) return 'DM';
+  // No clear signal — default to M/D (gviz standard en-US)
+  return 'MD';
 }
 
 function toggleSB(){
@@ -696,22 +698,30 @@ function poblarCarteraFilter(){
 }
 
 function getFiltered(){
-  var desde=document.getElementById('fDesde').value;
-  var hasta=document.getElementById('fHasta').value;
+  // CRITICAL: normalize dates so MM/DD/YYYY and YYYY-MM-DD both work
+  var rawDesde=document.getElementById('fDesde').value.trim();
+  var rawHasta=document.getElementById('fHasta').value.trim();
+  var desde=rawDesde?normDate(rawDesde):'';
+  var hasta=rawHasta?normDate(rawHasta):'';
   var selC=state.selectedCarteras;
+  var dateCol=state.colMap.fecha;
+  var cartCol=state.colMap.cartera;
   return rawData.filter(function(r){
-    var d=normDate(r['Fecha:']||r['Fecha']||r['fecha:']||r['fecha']||'');
+    var d=normDate(r[dateCol]||'');
+    if(!d)return false;
     if(desde&&d<desde)return false;
     if(hasta&&d>hasta)return false;
-    var c=(r['empresa_cliente']||r['Empresa_cliente']||r['EMPRESA_CLIENTE']||'').trim();
-    if(selC.indexOf(c)<0)return false;
+    var c=(r[cartCol]||'').trim();
+    if(!c||selC.indexOf(c)<0)return false;
     return true;
   });
 }
 
 function limpiarFiltro(){
-  document.getElementById('fDesde').value='';
-  document.getElementById('fHasta').value='';
+  var fd=document.getElementById('fDesde');
+  var fh=document.getElementById('fHasta');
+  fd.value=''; fd.style.borderColor='var(--border)';
+  fh.value=''; fh.style.borderColor='var(--border)';
   state.selectedCarteras=CARTERAS.slice();
   initCarteraFilter();renderAll();
 }
@@ -1330,76 +1340,74 @@ function fmtDate(d){
   return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
 }
 
+function makeSemanaManual(){
+  // Build manual{} for ALL carteras in CARTERAS array
+  var m={};
+  CARTERAS.forEach(function(c){m[c]={minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0};});
+  return m;
+}
+
 function autoDetectSemanas(rows){
   if(!rows||!rows.length) return;
   var dateCol=state.colMap.fecha;
-  // Collect all unique dates
+
+  // Collect all unique valid dates from data
   var dates=[];
   rows.forEach(function(r){
     var d=normDate(r[dateCol]||'');
-    if(d&&d>'2000-01-01'&&dates.indexOf(d)<0) dates.push(d);
+    if(d&&d>'2020-01-01'&&dates.indexOf(d)<0) dates.push(d);
   });
   if(!dates.length) return;
   dates.sort();
+  var maxDate=dates[dates.length-1];
 
-  // Find min and max date
-  var minDate=dates[0], maxDate=dates[dates.length-1];
-
-  // Check if we have data OUTSIDE existing semanas
-  var allCovered=true;
-  dates.forEach(function(d){
-    var inSem=state.semanas.some(function(s){return d>=s.fechaInicio&&d<=s.fechaFin;});
-    if(!inSem) allCovered=false;
-  });
-
-  if(allCovered) return; // nothing to do
-
-  // Find uncovered date ranges and suggest new semanas
-  // Group uncovered dates by ISO week
+  // Find dates NOT covered by any existing semana
   var uncovered=dates.filter(function(d){
     return !state.semanas.some(function(s){return d>=s.fechaInicio&&d<=s.fechaFin;});
   });
-
   if(!uncovered.length) return;
 
-  // Show a notification badge on the semana tab area
+  // Group uncovered dates by calendar week (Mon-Sun)
   var weekGroups={};
   uncovered.forEach(function(d){
-    var dt=new Date(d+'T00:00:00');
+    var dt=new Date(d+'T12:00:00'); // noon to avoid DST issues
     var mon=getMonday(dt);
     var monStr=fmtDate(mon);
-    var sun=new Date(mon); sun.setDate(sun.getDate()+6);
+    var sun=new Date(mon.getTime()); sun.setDate(sun.getDate()+6);
     var sunStr=fmtDate(sun);
-    if(!weekGroups[monStr]) weekGroups[monStr]={start:monStr,end:sunStr,count:0};
-    weekGroups[monStr].count++;
+    // Cap sunStr at maxDate so we don't show future dates
+    if(sunStr>maxDate) sunStr=maxDate;
+    if(!weekGroups[monStr]) weekGroups[monStr]={start:monStr,end:sunStr,dates:[]};
+    weekGroups[monStr].dates.push(d);
   });
 
-  // For each new week group, add a semana if not already present
+  var months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   var added=0;
+
   Object.keys(weekGroups).sort().forEach(function(wk){
     var g=weekGroups[wk];
-    var exists=state.semanas.some(function(s){
-      return (s.fechaInicio<=g.start&&g.start<=s.fechaFin)||(s.fechaInicio<=g.end&&g.end<=s.fechaFin);
+    // Check again — avoid duplicates if called multiple times
+    var alreadyExists=state.semanas.some(function(s){
+      // Overlaps if the starts/ends intersect
+      return !(g.end<s.fechaInicio||g.start>s.fechaFin);
     });
-    if(!exists){
-      var n=state.semanas.length+1;
-      // Format name from dates
-      var sd=new Date(g.start+'T00:00:00');
-      var ed=new Date(g.end+'T00:00:00');
-      var months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-      var nombre='Semana '+n+' ('+sd.getDate()+'-'+ed.getDate()+' '+months[sd.getMonth()]+')';
-      var id='sem_auto_'+n;
-      var manual={};
-      state.semanas[0]&&Object.keys(state.semanas[0].manual).forEach(function(c){
-        manual[c]={minDisp:0,metaCumplida:0,objPromesas:0,resPromesas:0};
-      });
-      state.semanas.push({id:id,nombre:nombre,fechaInicio:g.start,fechaFin:g.end,manual:manual});
-      added++;
-    }
+    if(alreadyExists) return;
+
+    var n=state.semanas.length+1;
+    var sd=new Date(g.start+'T12:00:00');
+    var ed=new Date(g.end+'T12:00:00');
+    var nombre='Semana '+n+' ('+sd.getDate()+'-'+ed.getDate()+' '+months[sd.getMonth()]+')';
+    var id='sem'+n+'_auto';
+    state.semanas.push({
+      id:id, nombre:nombre,
+      fechaInicio:g.start, fechaFin:g.end,
+      manual:makeSemanaManual()
+    });
+    added++;
   });
 
   if(added>0){
-    toast(added+' semana(s) nueva(s) detectada(s) del Sheets','ok');
+    toast('✓ '+added+' semana(s) nueva(s) detectada(s) y agregada(s)','ok');
   }
 }
 
@@ -1535,8 +1543,12 @@ document.getElementById('nav8').addEventListener('click',function(){navTo('sec-a
   document.getElementById('shUrl').value=SHEET_ID;
   document.getElementById('shTab').value=SHEET_TAB;
   lastId=SHEET_ID;lastTab=SHEET_TAB;
+  // Always start with empty date filter
   document.getElementById('fDesde').value='';
   document.getElementById('fHasta').value='';
+  // Disable browser autofill aggressively
+  document.getElementById('fDesde').setAttribute('autocomplete','new-password');
+  document.getElementById('fHasta').setAttribute('autocomplete','new-password');
   initCarteraFilter();
   addPivot({id:'piv1',title:'Minutos por Cartera',rows:'empresa_cliente',cols:'none',val:'MINUTOS CONSUMIDOS',agg:'sum'});
   renderAll();
